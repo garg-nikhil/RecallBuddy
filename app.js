@@ -1,5 +1,6 @@
 // app.js
-const API_URL = "https://cors-anywhere.herokuapp.com/script.google.com/macros/s/AKfycbxamcQlqbAauU9zj_F1K8349TR6klT8COjCAX6tX8g8-AuQ3ic1V6N2JYR2_QpNFAjX/exec";
+const API_URL = "https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxamcQlqbAauU9zj_F1K8349TR6klT8COjCAX6tX8g8-AuQ3ic1V6N2JYR2_QpNFAjX/exec";
+
 
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();

@@ -1,42 +1,58 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dental Recall Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-4">Recall Buddy</h1>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Add Patient Form -->
-      <div class="bg-white rounded-xl shadow-md p-4">
-        <h2 class="text-xl font-semibold mb-3">➕ Add Patient</h2>
-        <form id="addPatientForm">
-          <input type="text" id="name" placeholder="Name" class="w-full mb-2 p-2 border rounded" required />
-          <input type="text" id="number" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded" required />
-          <input type="date" id="recallDate" class="w-full mb-2 p-2 border rounded" required />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Add Patient
-          </button>
-        </form>
-        <div id="addStatus" class="mt-2 text-sm"></div>
-      </div>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial; padding: 20px; }
+      .box { background: #eef; margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+    </style>
+  </head>
+  <body>
+    <h2>Add Patient</h2>
+    <form id="addPatientForm">
+      <input type="text" id="name" placeholder="Full Name" required><br><br>
+      <input type="text" id="number" placeholder="Phone Number" required><br><br>
+      <input type="date" id="recallDate" required><br><br>
+      <button type="submit">Add</button>
+    </form>
+    <p id="addStatus"></p>
 
-      <!-- View Recalls -->
-      <div class="bg-white rounded-xl shadow-md p-4">
-        <h2 class="text-xl font-semibold mb-3">📋 Upcoming Recalls</h2>
-        <div id="recallList" class="space-y-2">
-          <!-- Recalls will be rendered here -->
-          <p class="text-gray-500">Loading recalls...</p>
-        </div>
-      </div>
-    </div>
-  </div>
+    <h2>Upcoming Recalls (Next 7 Days)</h2>
+    <div id="recallList">Loading...</div>
 
-  <script src="app.js"></script>
-</body>
+    <script>
+      document.getElementById("addPatientForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const data = {
+          name: document.getElementById("name").value,
+          number: document.getElementById("number").value,
+          recallDate: document.getElementById("recallDate").value
+        };
+        google.script.run
+          .withSuccessHandler(function (msg) {
+            document.getElementById("addStatus").textContent = msg;
+            document.getElementById("addPatientForm").reset();
+            loadRecalls();
+          })
+          .addPatient(data);
+      });
+
+      function loadRecalls() {
+        document.getElementById("recallList").innerHTML = "Loading...";
+        google.script.run.withSuccessHandler(function (data) {
+          if (!data.length) {
+            document.getElementById("recallList").innerHTML = "No upcoming recalls.";
+            return;
+          }
+          let html = "";
+          data.forEach(function (p) {
+            html += `<div class="box"><strong>${p.name}</strong> — ${p.number}<br>📅 ${new Date(p.recallDate).toLocaleDateString()}</div>`;
+          });
+          document.getElementById("recallList").innerHTML = html;
+        }).getUpcomingRecalls();
+      }
+
+      loadRecalls();
+    </script>
+  </body>
 </html>
