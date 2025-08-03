@@ -7,14 +7,22 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
 
   const name = encodeURIComponent(document.getElementById("name").value.trim());
   const number = encodeURIComponent(document.getElementById("number").value.trim());
-  const recallDate = encodeURIComponent(document.getElementById("recallDate").value);
+  let recallDateRaw = document.getElementById("recallDate").value.trim();
+
+  // Convert dd-mm-yyyy to yyyy-mm-dd if needed
+  let recallDate = recallDateRaw;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(recallDateRaw)) {
+    const [dd, mm, yyyy] = recallDateRaw.split("-");
+    recallDate = `${yyyy}-${mm}-${dd}`;
+  }
+  recallDate = encodeURIComponent(recallDate);
 
   // Use GET request with query parameters
   const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
   const res = await fetch(url);
   const result = await res.json();
   document.getElementById("addStatus").textContent =
-    result.status === "success" ? "✅ Patient added!" : "❌ Error adding patient.";
+    result.status === "success" ? "✅ Patient added!" : `❌ Error adding patient. ${result.message || ''}`;
 
   // Clear form
   document.getElementById("addPatientForm").reset();
