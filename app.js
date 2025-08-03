@@ -1,5 +1,5 @@
 // app.js
-const API_URL = "https://script.google.com/macros/s/AKfycbz1xSGJEwKaep-PlHom-RZ4f2Gs-nh9SjSe0Hy6ooM/dev";
+const API_URL = "https://script.google.com/macros/s/AKfycbxamcQlqbAauU9zj_F1K8349TR6klT8COjCAX6tX8g8-AuQ3ic1V6N2JYR2_QpNFAjX/exec";
 
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
