@@ -1,0 +1,42 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dental Recall Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">🦷 Dental Recall Admin</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Add Patient Form -->
+      <div class="bg-white rounded-xl shadow-md p-4">
+        <h2 class="text-xl font-semibold mb-3">➕ Add Patient</h2>
+        <form id="addPatientForm">
+          <input type="text" id="name" placeholder="Name" class="w-full mb-2 p-2 border rounded" required />
+          <input type="text" id="number" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded" required />
+          <input type="date" id="recallDate" class="w-full mb-2 p-2 border rounded" required />
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Add Patient
+          </button>
+        </form>
+        <div id="addStatus" class="mt-2 text-sm"></div>
+      </div>
+
+      <!-- View Recalls -->
+      <div class="bg-white rounded-xl shadow-md p-4">
+        <h2 class="text-xl font-semibold mb-3">📋 Upcoming Recalls</h2>
+        <div id="recallList" class="space-y-2">
+          <!-- Recalls will be rendered here -->
+          <p class="text-gray-500">Loading recalls...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
