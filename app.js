@@ -5,16 +5,13 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxamcQlqbAauU9zj_F1K834
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById("name").value.trim();
-  const number = document.getElementById("number").value.trim();
-  const recallDate = document.getElementById("recallDate").value;
+  const name = encodeURIComponent(document.getElementById("name").value.trim());
+  const number = encodeURIComponent(document.getElementById("number").value.trim());
+  const recallDate = encodeURIComponent(document.getElementById("recallDate").value);
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({ name, number, recallDate }),
-    headers: { "Content-Type": "application/json" }
-  });
-
+  // Use GET request with query parameters
+  const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
+  const res = await fetch(url);
   const result = await res.json();
   document.getElementById("addStatus").textContent =
     result.status === "success" ? "✅ Patient added!" : "❌ Error adding patient.";
