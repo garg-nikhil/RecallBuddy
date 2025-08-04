@@ -26,16 +26,13 @@ async function loadRecalls() {
   listEl.innerHTML = "<p class='text-gray-500'>Loading...</p>";
 
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL + "?action=upcomingRecalls");
     const data = await res.json();
-
-    // data.rows contains all patients array
-    const patients = data.rows || [];
+    const patients = data.filteredRows || []; // Correct key!
     if (!patients.length) {
-      listEl.innerHTML = "<p class='text-gray-500'>No recall entries found.</p>";
+      listEl.innerHTML = "<p class='text-gray-500'>No upcoming recalls found.</p>";
       return;
     }
-
     listEl.innerHTML = "";
     patients.forEach((patient) => {
       const div = document.createElement("div");
@@ -45,7 +42,7 @@ async function loadRecalls() {
       listEl.appendChild(div);
     });
   } catch (err) {
-    listEl.innerHTML = "<p class='text-red-500'>Error loading recalls.</p>";
+    listEl.innerHTML = "<p class='text-red-500'>Error loading upcoming recalls.</p>";
   }
 }
 
