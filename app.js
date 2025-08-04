@@ -1,6 +1,4 @@
-// app.js
-const API_URL = "https://script.google.com/macros/s/AKfycbxamcQlqbAauU9zj_F1K8349TR6klT8COjCAX6tX8g8-AuQ3ic1V6N2JYR2_QpNFAjX/exec";
-
+const API_URL = "https://script.google.com/macros/s/AKfycbwg920kMFGpTkNX4QDYjjBl2Rj2OiHd6UTEvE7mQdRH8va1IDZpct6NWv-PC3bLFFVg/exec";
 
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -9,15 +7,9 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
   const number = encodeURIComponent(document.getElementById("number").value.trim());
   let recallDateRaw = document.getElementById("recallDate").value.trim();
 
-  // Convert dd-mm-yyyy to yyyy-mm-dd if needed
-  let recallDate = recallDateRaw;
-  if (/^\d{2}-\d{2}-\d{4}$/.test(recallDateRaw)) {
-    const [dd, mm, yyyy] = recallDateRaw.split("-");
-    recallDate = `${yyyy}-${mm}-${dd}`;
-  }
-  recallDate = encodeURIComponent(recallDate);
+  // Assume input is already yyyy-mm-dd from a date picker control
+  let recallDate = encodeURIComponent(recallDateRaw);
 
-  // Use GET request with query parameters
   const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
   const res = await fetch(url);
   const result = await res.json();
@@ -25,9 +17,8 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
   document.getElementById("addStatus").textContent =
     result.status === "success" ? "✅ Patient added!" : `❌ Error adding patient. ${result.message || ''}`;
 
-  // Clear form
   document.getElementById("addPatientForm").reset();
-  loadRecalls(); // reload list
+  loadRecalls();
 });
 
 async function loadRecalls() {
@@ -38,13 +29,15 @@ async function loadRecalls() {
     const res = await fetch(API_URL);
     const data = await res.json();
 
-    if (!data.length) {
+    // data.rows contains all patients array
+    const patients = data.rows || [];
+    if (!patients.length) {
       listEl.innerHTML = "<p class='text-gray-500'>No recall entries found.</p>";
       return;
     }
 
     listEl.innerHTML = "";
-    data.forEach((patient) => {
+    patients.forEach((patient) => {
       const div = document.createElement("div");
       div.className = "bg-blue-50 border-l-4 border-blue-400 p-2 rounded";
       div.innerHTML = `<strong>${patient.Name}</strong> → ${patient.Number}<br>
@@ -55,5 +48,10 @@ async function loadRecalls() {
     listEl.innerHTML = "<p class='text-red-500'>Error loading recalls.</p>";
   }
 }
+
+// Optionally, you can add a function to load upcoming recalls if needed:
+// async function loadUpcomingRecalls() {
+//   ...
+// }
 
 loadRecalls();
