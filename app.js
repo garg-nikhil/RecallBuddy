@@ -21,6 +21,7 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
   const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
   const res = await fetch(url);
   const result = await res.json();
+  console.log("API response:", result);
   document.getElementById("addStatus").textContent =
     result.status === "success" ? "✅ Patient added!" : `❌ Error adding patient. ${result.message || ''}`;
 
