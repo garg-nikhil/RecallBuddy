@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,6 +43,7 @@
           <option value="30">Next 30 days</option>
         </select>
       </label>
+
       <div id="recallList" class="space-y-2 mt-4 text-sm text-gray-700">
         Loading...
       </div>
@@ -69,7 +70,7 @@
       <form id="addPatientForm">
         <input type="text" id="name" placeholder="Name" class="w-full mb-2 p-2 border rounded" required />
         <input type="text" id="number" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded" required />
-        <input type="date" id="recallDate" class="w-full mb-2 p-2 border rounded" required />
+        <input type="text" id="recallDate" placeholder="Recall Date (e.g. 17 Aug 2025 or 2025-08-17)" class="w-full mb-2 p-2 border rounded" required />
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           Add Patient
         </button>

@@ -3,8 +3,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwg920kMFGpTkNX4QDYjjBl
 // Format yyyy-mm-dd as 'DD MMM' for display
 function formatDisplayDate(yyyy_mm_dd) {
   if (!yyyy_mm_dd) return "";
-  const [yyyy, mm, dd] = yyyy_mm_dd.split("-");
+  // Defensive splitting (some inputs may be empty or invalid)
+  const parts = yyyy_mm_dd.split("-");
+  if (parts.length < 3) return yyyy_mm_dd;
+  const [yyyy, mm, dd] = parts;
   const date = new Date(`${yyyy}-${mm}-${dd}`);
+  if (isNaN(date)) return yyyy_mm_dd;
   const monthMap = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return `${parseInt(dd,10)} ${monthMap[date.getMonth()]}`;
 }
@@ -13,7 +17,7 @@ function formatDisplayDate(yyyy_mm_dd) {
 function showTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(div => div.classList.add('hidden'));
   document.getElementById(tabId).classList.remove('hidden');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
 }
 
@@ -25,9 +29,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-showTab('dashboardTab'); // Default active tab on page load
+showTab('dashboardTab'); // Default tab on load
 
-// Load upcoming appointments filtered by days
+// Load Upcoming Appointments
 async function loadUpcomingRecalls() {
   const days = document.getElementById("recallDaysFilter").value;
   const listEl = document.getElementById("recallList");
@@ -58,7 +62,7 @@ async function loadUpcomingRecalls() {
 
 document.getElementById("recallDaysFilter").addEventListener("change", loadUpcomingRecalls);
 
-// Load all patients into the table
+// Load All Patients
 async function loadAllPatients() {
   const tbody = document.querySelector("#allPatientsTable tbody");
   tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
@@ -93,31 +97,38 @@ async function loadAllPatients() {
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = encodeURIComponent(document.getElementById("name").value.trim());
-  const number = encodeURIComponent(document.getElementById("number").value.trim());
-  const recallDate = encodeURIComponent(document.getElementById("recallDate").value.trim());
+  const name = document.getElementById("name").value.trim();
+  const number = document.getElementById("number").value.trim();
+  const recallDateRaw = document.getElementById("recallDate").value.trim();
 
-  if (!recallDate) {
-    document.getElementById("addStatus").textContent = "❌ Please select a valid date.";
+  if (!name || !number || !recallDateRaw) {
+    document.getElementById("addStatus").textContent = "❌ Please fill all required fields.";
     return;
   }
 
-  const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
-  const res = await fetch(url);
-  const result = await res.json();
+  const url = `${API_URL}?action=addPatient&name=${encodeURIComponent(name)}&number=${encodeURIComponent(number)}&recallDate=${encodeURIComponent(recallDateRaw)}`;
 
-  document.getElementById("addStatus").textContent =
-    result.status === "success"
-      ? "✅ Patient added!"
-      : `❌ Error adding patient. ${result.message || ''}`;
+  try {
+    const res = await fetch(url);
+    const result = await res.json();
 
-  document.getElementById("addPatientForm").reset();
-  // Update upcoming and all patients after adding new entry
-  loadUpcomingRecalls();
-  loadAllPatients();
+    document.getElementById("addStatus").textContent =
+      result.status === "success"
+        ? "✅ Patient added!"
+        : `❌ Error adding patient. ${result.message || ''}`;
+
+    if (result.status === "success") {
+      document.getElementById("addPatientForm").reset();
+      // Refresh lists
+      loadUpcomingRecalls();
+      loadAllPatients();
+    }
+  } catch (err) {
+    document.getElementById("addStatus").textContent = "❌ Unexpected error occurred.";
+  }
 });
 
-// Initial load upon DOM ready
+// Initial data loading on page ready
 document.addEventListener("DOMContentLoaded", () => {
   loadUpcomingRecalls();
   loadAllPatients();
