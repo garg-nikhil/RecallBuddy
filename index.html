@@ -2,67 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dental Recall Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recall Buddy - Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-4">Recall Buddy</h1>
+    <h1 class="text-3xl font-bold mb-6">Recall Buddy</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Add Patient Form -->
-      <div class="bg-white rounded-xl shadow-md p-4">
-        <h2 class="text-xl font-semibold mb-3">➕ Add Patient</h2>
-        <form id="addPatientForm">
-          <input type="text" id="name" placeholder="Name" class="w-full mb-2 p-2 border rounded" required />
-          <input type="text" id="number" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded" required />
-          <input type="date" id="recallDate" class="w-full mb-2 p-2 border rounded" required />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Add Patient
-          </button>
-        </form>
-        <div id="addStatus" class="mt-2 text-sm text-green-600"></div>
-      </div>
+    <!-- Tab Navigation Bar -->
+    <div class="flex space-x-4 mb-5">
+      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="dashboardTab">Dashboard</button>
+      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="upcomingTab">Upcoming Recalls</button>
+      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="patientsTab">All Patients</button>
+      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="addPatientTab">Add Patient</button>
+    </div>
 
-      <!-- Filter and Upcoming Recalls -->
-      <div class="bg-white rounded-xl shadow-md p-4">
-        <h2 class="text-xl font-semibold mb-3">📅 Upcoming Appointments</h2>
-        <label class="block mb-2 font-semibold">
-          Show appointments for:
-          <select id="recallDaysFilter" class="ml-2 border rounded p-1">
-            <option value="7">Next 7 days</option>
-            <option value="15">Next 15 days</option>
-            <option value="30">Next 30 days</option>
-          </select>
-        </label>
-        <div id="recallList" class="space-y-2 text-sm text-gray-700">
-          <!-- Upcoming recalls rendered here -->
-          Loading...
-        </div>
-      </div>
+    <!-- Tab Panels -->
 
-      <!-- All Patients Table -->
-      <div class="bg-white rounded-xl shadow-md p-4 md:col-span-2 mt-6">
-        <h2 class="text-xl font-semibold mb-3">📋 All Patients</h2>
-        <table id="allPatientsTable" class="min-w-full table-auto border-collapse border border-gray-300">
-          <thead>
-            <tr>
-              <th class="border border-gray-300 px-2 py-1">Name</th>
-              <th class="border border-gray-300 px-2 py-1">Phone Number</th>
-              <th class="border border-gray-300 px-2 py-1">Recall Date</th>
-              <th class="border border-gray-300 px-2 py-1">Status</th>
-              <th class="border border-gray-300 px-2 py-1">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Patients data injected here -->
-          </tbody>
-        </table>
+    <!-- Dashboard Tab -->
+    <div id="dashboardTab" class="tab-panel hidden">
+      <h2 class="text-2xl font-semibold mb-3">📊 Dashboard</h2>
+      <div id="dashboardContent">
+        <p>Analytics Coming Soon...</p>
       </div>
     </div>
-  </div>
 
+    <!-- Upcoming Recalls Tab -->
+    <div id="upcomingTab" class="tab-panel hidden">
+      <h2 class="text-2xl font-semibold mb-3">📅 Upcoming Recalls</h2>
+      <label class="mb-2 font-semibold">
+        Show recalls for:
+        <select id="recallDaysFilter" class="ml-2 border rounded p-1">
+          <option value="7">Next 7 days</option>
+          <option value="15">Next 15 days</option>
+          <option value="30">Next 30 days</option>
+        </select>
+      </label>
+      <div id="recallList" class="space-y-2 mt-4 text-sm text-gray-700">
+        Loading...
+      </div>
+    </div>
+
+    <!-- All Patients Tab -->
+    <div id="patientsTab" class="tab-panel hidden">
+      <h2 class="text-2xl font-semibold mb-3">📋 All Patients</h2>
+      <table id="allPatientsTable" class="min-w-full table-auto border-collapse border border-gray-300 text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border border-gray-300 px-2 py-1">Name</th>
+            <th class="border border-gray-300 px-2 py-1">Phone Number</th>
+            <th class="border border-gray-300 px-2 py-1">Recall Date</th>
+            <th class="border border-gray-300 px-2 py-1">Status</th>
+            <th class="border border-gray-300 px-2 py-1">Notes</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Add Patient Tab -->
+    <div id="addPatientTab" class="tab-panel hidden">
+      <h2 class="text-2xl font-semibold mb-3">➕ Add Patient</h2>
+      <form id="addPatientForm">
+        <input type="text" id="name" placeholder="Name" class="w-full mb-2 p-2 border rounded" required />
+        <input type="text" id="number" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded" required />
+        <input type="date" id="recallDate" class="w-full mb-2 p-2 border rounded" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Add Patient
+        </button>
+      </form>
+      <div id="addStatus" class="mt-2 text-sm"></div>
+    </div>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>
