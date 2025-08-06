@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Recall Buddy - Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -16,17 +16,16 @@
   <div class="container mx-auto p-6">
     <h1 class="text-3xl font-bold mb-6">Recall Buddy</h1>
 
-    <!-- Tab Navigation Bar -->
+    <!-- Tabs Navigation -->
     <div class="flex space-x-4 mb-5">
       <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="dashboardTab">Dashboard</button>
-      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="upcomingTab">Upcoming Recalls</button>
+      <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="upcomingTab">Upcoming Appointments</button>
       <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="patientsTab">All Patients</button>
       <button class="tab-btn px-4 py-2 rounded font-semibold" data-tab="addPatientTab">Add Patient</button>
     </div>
 
-    <!-- Tab Panels -->
+    <!-- Tab Contents -->
 
-    <!-- Dashboard Tab -->
     <div id="dashboardTab" class="tab-panel hidden">
       <h2 class="text-2xl font-semibold mb-3">📊 Dashboard</h2>
       <div id="dashboardContent">
@@ -34,11 +33,10 @@
       </div>
     </div>
 
-    <!-- Upcoming Recalls Tab -->
     <div id="upcomingTab" class="tab-panel hidden">
-      <h2 class="text-2xl font-semibold mb-3">📅 Upcoming Recalls</h2>
+      <h2 class="text-2xl font-semibold mb-3">📅 Upcoming Appointments</h2>
       <label class="mb-2 font-semibold">
-        Show recalls for:
+        Show appointments for:
         <select id="recallDaysFilter" class="ml-2 border rounded p-1">
           <option value="7">Next 7 days</option>
           <option value="15">Next 15 days</option>
@@ -50,7 +48,6 @@
       </div>
     </div>
 
-    <!-- All Patients Tab -->
     <div id="patientsTab" class="tab-panel hidden">
       <h2 class="text-2xl font-semibold mb-3">📋 All Patients</h2>
       <table id="allPatientsTable" class="min-w-full table-auto border-collapse border border-gray-300 text-sm">
@@ -67,7 +64,6 @@
       </table>
     </div>
 
-    <!-- Add Patient Tab -->
     <div id="addPatientTab" class="tab-panel hidden">
       <h2 class="text-2xl font-semibold mb-3">➕ Add Patient</h2>
       <form id="addPatientForm">
@@ -81,6 +77,7 @@
       <div id="addStatus" class="mt-2 text-sm"></div>
     </div>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>

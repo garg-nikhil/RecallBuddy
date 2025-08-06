@@ -1,13 +1,21 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwg920kMFGpTkNX4QDYjjBl2Rj2OiHd6UTEvE7mQdRH8va1IDZpct6NWv-PC3bLFFVg/exec";
 
-// ------- Tab Navigation Logic -------
+// Helper: Format yyyy-mm-dd as 'DD MMM'
+function formatDisplayDate(yyyy_mm_dd) {
+  const [yyyy, mm, dd] = yyyy_mm_dd.split("-");
+  const date = new Date(`${yyyy}-${mm}-${dd}`);
+  const monthMap = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${parseInt(dd,10)} ${monthMap[date.getMonth()]}`;
+}
+
+// Tab navigation and activation
 function showTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(div => div.classList.add('hidden'));
   document.getElementById(tabId).classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
 }
-// Setup tab click listeners
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     showTab(btn.dataset.tab);
@@ -15,10 +23,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (btn.dataset.tab === 'patientsTab') loadAllPatients();
   });
 });
-// Show dashboard first
-showTab('dashboardTab');
+showTab('dashboardTab'); // default on load
 
-// ------- Upcoming Recalls Loading -------
+// Load upcoming appointments with filter days
 async function loadUpcomingRecalls() {
   const days = document.getElementById("recallDaysFilter").value;
   const listEl = document.getElementById("recallList");
@@ -29,25 +36,27 @@ async function loadUpcomingRecalls() {
     const data = await res.json();
     const patients = data.filteredRows || [];
     if (!patients.length) {
-      listEl.innerHTML = "<p class='text-gray-500'>No upcoming recalls found for selected days.</p>";
+      listEl.innerHTML = `<p class='text-gray-500'>No upcoming appointments for next ${days} days.</p>`;
       return;
     }
+
     listEl.innerHTML = "";
     patients.forEach(({ Name, Number, RecallDate, Status, Notes }) => {
       const div = document.createElement("div");
       div.className = "bg-blue-50 border-l-4 border-blue-400 p-2 rounded";
       div.innerHTML =
         `<strong>${Name}</strong> → ${Number}<br>
-         📅 <b>${RecallDate}</b> | Status: ${Status}${Notes ? `<br>🗒️ ${Notes}` : ''}`;
+         📅 <b>${formatDisplayDate(RecallDate)}</b> | Status: ${Status}${Notes ? `<br>🗒️ ${Notes}` : ''}`;
       listEl.appendChild(div);
     });
   } catch (err) {
-    listEl.innerHTML = "<p class='text-red-500'>Error loading upcoming recalls.</p>";
+    listEl.innerHTML = "<p class='text-red-500'>Error loading upcoming appointments.</p>";
   }
 }
+
 document.getElementById("recallDaysFilter").addEventListener("change", loadUpcomingRecalls);
 
-// ------- All Patients Table -------
+// Load all patients into table
 async function loadAllPatients() {
   const tbody = document.querySelector("#allPatientsTable tbody");
   tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
@@ -60,13 +69,14 @@ async function loadAllPatients() {
       tbody.innerHTML = "<tr><td colspan='5'>No patients found.</td></tr>";
       return;
     }
+
     tbody.innerHTML = "";
     patients.forEach(({ Name, Number, RecallDate, Status, Notes }) => {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td class="border border-gray-300 px-2 py-1">${Name}</td>
         <td class="border border-gray-300 px-2 py-1">${Number}</td>
-        <td class="border border-gray-300 px-2 py-1">${RecallDate}</td>
+        <td class="border border-gray-300 px-2 py-1">${formatDisplayDate(RecallDate)}</td>
         <td class="border border-gray-300 px-2 py-1">${Status}</td>
         <td class="border border-gray-300 px-2 py-1">${Notes}</td>
       `;
@@ -77,15 +87,20 @@ async function loadAllPatients() {
   }
 }
 
-// ------- Add Patient Logic -------
+// Add patient form submission
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = encodeURIComponent(document.getElementById("name").value.trim());
   const number = encodeURIComponent(document.getElementById("number").value.trim());
-  const recallDateRaw = document.getElementById("recallDate").value.trim(); // yyyy-mm-dd
+  let recallDateRaw = document.getElementById("recallDate").value.trim();
 
-  const recallDate = encodeURIComponent(recallDateRaw);
+  // Convert date input to yyyy-mm-dd string for backend
+  let recallDateObj = new Date(recallDateRaw);
+  let yyyy = recallDateObj.getFullYear();
+  let mm = String(recallDateObj.getMonth() + 1).padStart(2, "0");
+  let dd = String(recallDateObj.getDate()).padStart(2, "0");
+  let recallDate = `${yyyy}-${mm}-${dd}`;
 
   const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
   const res = await fetch(url);
@@ -97,12 +112,12 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
       : `❌ Error adding patient. ${result.message || ''}`;
 
   document.getElementById("addPatientForm").reset();
-  // Optionally, refresh lists
-  // loadUpcomingRecalls();
-  // loadAllPatients();
+  // Optionally, refresh lists after adding
+  loadUpcomingRecalls();
+  loadAllPatients();
 });
 
-// ------- Initial Loads -------
+// Initial load
 document.addEventListener("DOMContentLoaded", () => {
   loadUpcomingRecalls();
   loadAllPatients();
