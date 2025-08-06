@@ -1,14 +1,15 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwg920kMFGpTkNX4QDYjjBl2Rj2OiHd6UTEvE7mQdRH8va1IDZpct6NWv-PC3bLFFVg/exec";
 
-// Helper: Format yyyy-mm-dd as 'DD MMM'
+// Format yyyy-mm-dd as 'DD MMM' for display
 function formatDisplayDate(yyyy_mm_dd) {
+  if (!yyyy_mm_dd) return "";
   const [yyyy, mm, dd] = yyyy_mm_dd.split("-");
   const date = new Date(`${yyyy}-${mm}-${dd}`);
   const monthMap = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return `${parseInt(dd,10)} ${monthMap[date.getMonth()]}`;
 }
 
-// Tab navigation and activation
+// Show/hide tabs and update active button styles
 function showTab(tabId) {
   document.querySelectorAll('.tab-panel').forEach(div => div.classList.add('hidden'));
   document.getElementById(tabId).classList.remove('hidden');
@@ -19,13 +20,14 @@ function showTab(tabId) {
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     showTab(btn.dataset.tab);
-    if (btn.dataset.tab === 'upcomingTab') loadUpcomingRecalls();
-    if (btn.dataset.tab === 'patientsTab') loadAllPatients();
+    if (btn.dataset.tab === "upcomingTab") loadUpcomingRecalls();
+    else if (btn.dataset.tab === "patientsTab") loadAllPatients();
   });
 });
-showTab('dashboardTab'); // default on load
 
-// Load upcoming appointments with filter days
+showTab('dashboardTab'); // Default active tab on page load
+
+// Load upcoming appointments filtered by days
 async function loadUpcomingRecalls() {
   const days = document.getElementById("recallDaysFilter").value;
   const listEl = document.getElementById("recallList");
@@ -39,8 +41,8 @@ async function loadUpcomingRecalls() {
       listEl.innerHTML = `<p class='text-gray-500'>No upcoming appointments for next ${days} days.</p>`;
       return;
     }
-
     listEl.innerHTML = "";
+
     patients.forEach(({ Name, Number, RecallDate, Status, Notes }) => {
       const div = document.createElement("div");
       div.className = "bg-blue-50 border-l-4 border-blue-400 p-2 rounded";
@@ -56,7 +58,7 @@ async function loadUpcomingRecalls() {
 
 document.getElementById("recallDaysFilter").addEventListener("change", loadUpcomingRecalls);
 
-// Load all patients into table
+// Load all patients into the table
 async function loadAllPatients() {
   const tbody = document.querySelector("#allPatientsTable tbody");
   tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
@@ -87,20 +89,18 @@ async function loadAllPatients() {
   }
 }
 
-// Add patient form submission
+// Add Patient form submission
 document.getElementById("addPatientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = encodeURIComponent(document.getElementById("name").value.trim());
   const number = encodeURIComponent(document.getElementById("number").value.trim());
-  let recallDateRaw = document.getElementById("recallDate").value.trim();
+  const recallDate = encodeURIComponent(document.getElementById("recallDate").value.trim());
 
-  // Convert date input to yyyy-mm-dd string for backend
-  let recallDateObj = new Date(recallDateRaw);
-  let yyyy = recallDateObj.getFullYear();
-  let mm = String(recallDateObj.getMonth() + 1).padStart(2, "0");
-  let dd = String(recallDateObj.getDate()).padStart(2, "0");
-  let recallDate = `${yyyy}-${mm}-${dd}`;
+  if (!recallDate) {
+    document.getElementById("addStatus").textContent = "❌ Please select a valid date.";
+    return;
+  }
 
   const url = `${API_URL}?action=addPatient&name=${name}&number=${number}&recallDate=${recallDate}`;
   const res = await fetch(url);
@@ -112,12 +112,12 @@ document.getElementById("addPatientForm").addEventListener("submit", async (e) =
       : `❌ Error adding patient. ${result.message || ''}`;
 
   document.getElementById("addPatientForm").reset();
-  // Optionally, refresh lists after adding
+  // Update upcoming and all patients after adding new entry
   loadUpcomingRecalls();
   loadAllPatients();
 });
 
-// Initial load
+// Initial load upon DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   loadUpcomingRecalls();
   loadAllPatients();
